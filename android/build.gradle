@@ -25,6 +25,8 @@ apply plugin: 'com.android.library'
 android {
     namespace "io.flutter.plugins.webview_cookie_manager"
 
+    compileSdk 34
+
     defaultConfig {
         minSdkVersion 19
     }
