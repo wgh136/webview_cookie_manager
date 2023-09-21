@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * WebviewCookieManagerPlugin
@@ -41,10 +42,6 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
     // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
     // depending on the user's project. onAttachedToEngine or registerWith must both be defined
     // in the same class.
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "webview_cookie_manager");
-        channel.setMethodCallHandler(new WebviewCookieManagerPlugin());
-    }
 
     private static void hasCookies(final Result result) {
         CookieManager cookieManager = CookieManager.getInstance();
@@ -71,6 +68,7 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
 
     private static void getCookies(final MethodCall methodCall, final Result result) {
         if (!(methodCall.arguments() instanceof Map)) {
+            assert methodCall.arguments() != null;
             result.error(
                     "Invalid argument. Expected Map<String,String>, received "
                             + (methodCall.arguments().getClass().getSimpleName()),
@@ -110,6 +108,7 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
 
     private static void setCookies(final MethodCall methodCall, final Result result) {
         if (!(methodCall.arguments() instanceof List)) {
+            assert methodCall.arguments() != null;
             result.error(
                     "Invalid argument. Expected List<Map<String,String>>, received "
                             + (methodCall.arguments().getClass().getSimpleName()),
@@ -129,7 +128,7 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
                 Object domain = cookieMap.get("domain");
                 domainString = domain instanceof String ? (String)domain : "";
             }
-            final String value = cookieMap.get("asString").toString();
+            final String value = Objects.requireNonNull(cookieMap.get("asString")).toString();
             cookieManager.setCookie(domainString, value);
         }
 
@@ -164,7 +163,7 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
     }
 
     @Override
-    public void onMethodCall(MethodCall methodCall, Result result) {
+    public void onMethodCall(MethodCall methodCall, @NonNull Result result) {
         switch (methodCall.method) {
             case "clearCookies":
                 clearCookies(result);
