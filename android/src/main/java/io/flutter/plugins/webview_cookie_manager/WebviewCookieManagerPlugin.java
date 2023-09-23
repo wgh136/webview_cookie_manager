@@ -7,13 +7,11 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
@@ -54,12 +52,7 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
         final boolean hasCookies = cookieManager.hasCookies();
         if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
             cookieManager.removeAllCookies(
-                    new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(Boolean value) {
-                            result.success(hasCookies);
-                        }
-                    });
+                    value -> result.success(hasCookies));
         } else {
             cookieManager.removeAllCookie();
             result.success(hasCookies);
@@ -84,8 +77,8 @@ public class WebviewCookieManagerPlugin implements FlutterPlugin, MethodCallHand
         final String url = arguments.get("url");
         final String allCookiesString = url == null ? null : cookieManager.getCookie(url);
         final ArrayList<String> individualCookieStrings = allCookiesString == null ?
-                new ArrayList<String>()
-                : new ArrayList<String>(Arrays.asList(allCookiesString.split(";")));
+                new ArrayList<>()
+                : new ArrayList<>(Arrays.asList(allCookiesString.split(";")));
 
         ArrayList<Map<String, Object>> serializedCookies = new ArrayList<>();
         for (String cookieString : individualCookieStrings) {
